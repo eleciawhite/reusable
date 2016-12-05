@@ -8,7 +8,6 @@
 #include "console.h"
 #include "consoleIo.h"
 #include "consoleCommands.h"
-#include "debug.h"
 
 #define MIN(X, Y)		(((X) < (Y)) ? (X) : (Y))
 #define NOT_FOUND		-1
@@ -104,6 +103,8 @@ void ConsoleInit(void)
 	uint32_t i;
 
 	ConsoleIoInit();
+	ConsoleIoSendString("Welcome to the Consolinator, your gateway to testing code and hardware.");	
+	ConsoleIoSendString(STR_ENDLINE);
 	ConsoleIoSendString(CONSOLE_PROMPT);
 	mReceivedSoFar = 0u;
 

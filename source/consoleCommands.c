@@ -11,8 +11,6 @@
 #include "console.h"
 #include "consoleIo.h"
 #include "version.h"
-#include "debug.h"
-
 
 #define IGNORE_UNUSED_VARIABLE(x)     if ( &x == &x ) {}
 

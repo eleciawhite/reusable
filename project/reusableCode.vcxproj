@@ -14,18 +14,13 @@
     <ClCompile Include="..\source\console.c" />
     <ClCompile Include="..\source\consoleCommands.c" />
     <ClCompile Include="..\source\consoleIo.c" />
-    <ClCompile Include="..\source\debug.c" />
     <ClCompile Include="..\source\main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\console.h" />
     <ClInclude Include="..\source\consoleCommands.h" />
     <ClInclude Include="..\source\consoleIo.h" />
-    <ClInclude Include="..\source\debug.h" />
     <ClInclude Include="..\source\version.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\source\LICENSE.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0568F558-8A8F-426D-BDA0-6582F6AA2F4F}</ProjectGuid>

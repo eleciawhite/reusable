@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <conio.h>
 
-#include "debug.h" // note that this might be to another UART, different from the console
-
 static int getch_noblock() {
     if (_kbhit())
         return _getch();
@@ -16,7 +14,6 @@ static int getch_noblock() {
 
 eConsoleError ConsoleIoInit(void)
 {
-	DebugString("ConsoleIoInit");
 	return CONSOLE_SUCCESS;
 }
 eConsoleError ConsoleIoReceive(uint8_t *buffer, const uint32_t bufferLength, uint32_t *readLength)

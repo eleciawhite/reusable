@@ -10,6 +10,7 @@
 // User configuration
 #define CONSOLE_PROMPT			("> ")
 #define PARAMETER_SEPARATER		(' ')
+#define STR_ENDLINE "\r\n"
 
 // Salled from higher up areas of the code (main)
 void ConsoleInit(void);
