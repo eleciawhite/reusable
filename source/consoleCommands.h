@@ -22,10 +22,10 @@ typedef eCommandResult_T(*ConsoleCommand_T)(const char buffer[]);
 
 typedef struct sConsoleCommandStruct
 {
-    char* cmdStr;
-    ConsoleCommand_T function;
+    char* name;
+    ConsoleCommand_T execute;
 #if CONSOLE_COMMAND_MAX_HELP_LENGTH > 0
-	char helpStr[CONSOLE_COMMAND_MAX_HELP_LENGTH];
+	char help[CONSOLE_COMMAND_MAX_HELP_LENGTH];
 #else
 	uint8_t junk;
 #endif // CONSOLE_COMMAND_MAX_HELP_LENGTH 

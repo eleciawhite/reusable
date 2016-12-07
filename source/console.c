@@ -20,7 +20,7 @@ uint32_t mReceivedSoFar;
 // local functions
 static int32_t ConsoleCommandEndline(const char receiveBuffer[], const  uint32_t filledLength);
 
-static uint32_t ConsoleCommandMatch(const char* cmdStr, const char *buffer);
+static uint32_t ConsoleCommandMatch(const char* name, const char *buffer);
 static eCommandResult_T ConsoleParamFindN(const char * buffer, const uint8_t parameterNumber, uint32_t *startLocation);
 static uint32_t ConsoleResetBuffer(char receiveBuffer[], const  uint32_t filledLength, uint32_t usedSoFar);
 
@@ -28,14 +28,14 @@ static eCommandResult_T ConsoleUtilHexCharToInt(char charVal, uint8_t* pInt); //
 static eCommandResult_T ConsoleUtilsIntToHexChar(uint8_t intVal, char* pChar); // this could be replaced with itoa (intVal, str, 16);
 
 // ConsoleCommandMatch
-// Look to see if the data in the buffer matches the cmdStr given that
+// Look to see if the data in the buffer matches the command name given that
 // the strings are different lengths and we have parameter separators
-static uint32_t ConsoleCommandMatch(const char* cmdStr, const char *buffer)
+static uint32_t ConsoleCommandMatch(const char* name, const char *buffer)
 {
 	uint32_t i = 0u;
 	uint32_t result = 0u; // match
 
-	if ( buffer[i] == cmdStr [i] )
+	if ( buffer[i] == name [i] )
 	{
 		result = 1u;
 		i++;
@@ -46,7 +46,7 @@ static uint32_t ConsoleCommandMatch(const char* cmdStr, const char *buffer)
 		( buffer[i] != PARAMETER_SEPARATER ) &&  ( buffer[i] != '\n' ) &&  ( buffer[i] != (char) NULL )
 		)
 	{
-		if ( buffer[i] != cmdStr[i] )
+		if ( buffer[i] != name[i] )
 		{
 			result = 0u;
 		}
@@ -139,18 +139,18 @@ void ConsoleProcess(void)
 		{
 			cmdIndex = 0u;
 			found = NOT_FOUND;
-			while ( ( NULL != commandTable[cmdIndex].cmdStr ) && ( NOT_FOUND == found ) )
+			while ( ( NULL != commandTable[cmdIndex].name ) && ( NOT_FOUND == found ) )
 			{
-				if ( ConsoleCommandMatch(commandTable[cmdIndex].cmdStr, mReceiveBuffer) )
+				if ( ConsoleCommandMatch(commandTable[cmdIndex].name, mReceiveBuffer) )
 				{
-					result = commandTable[cmdIndex].function(mReceiveBuffer);
+					result = commandTable[cmdIndex].execute(mReceiveBuffer);
 					if ( COMMAND_SUCCESS != result )
 					{
 						ConsoleIoSendString("Error: ");
 						ConsoleIoSendString(mReceiveBuffer);
 
 						ConsoleIoSendString("Help: ");
-						ConsoleIoSendString(commandTable[cmdIndex].helpStr);
+						ConsoleIoSendString(commandTable[cmdIndex].help);
 						ConsoleIoSendString(STR_ENDLINE);
 
 					}

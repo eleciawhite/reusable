@@ -49,10 +49,10 @@ static eCommandResult_T ConsoleCommandHelp(const char buffer[])
 	tableLength = sizeof(mConsoleCommandTable) / sizeof(mConsoleCommandTable[0]);
 	for ( i = 0u ; i < tableLength - 1u ; i++ )
 	{
-		ConsoleIoSendString(mConsoleCommandTable[i].cmdStr);
+		ConsoleIoSendString(mConsoleCommandTable[i].name);
 #if CONSOLE_COMMAND_MAX_HELP_LENGTH > 0
 		ConsoleIoSendString(" : ");
-		ConsoleIoSendString(mConsoleCommandTable[i].helpStr);
+		ConsoleIoSendString(mConsoleCommandTable[i].help);
 #endif // CONSOLE_COMMAND_MAX_HELP_LENGTH > 0
 		ConsoleIoSendString(STR_ENDLINE);
 	}
