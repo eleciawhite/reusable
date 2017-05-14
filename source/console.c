@@ -4,14 +4,19 @@
 // be done in console commands.
 
 #include <string.h>  // for NULL
-#include <stdlib.h>  // for atoi and itoa
+#include <stdlib.h>  // for atoi and itoa (though this code implement a version of that)
+#include <stdbool.h>
 #include "console.h"
 #include "consoleIo.h"
 #include "consoleCommands.h"
 
 #define MIN(X, Y)		(((X) < (Y)) ? (X) : (Y))
 #define NOT_FOUND		-1
-#define INT16_MAX_STR_LENGTH 7 // -65534: six characters plus a NULL
+#define INT16_MAX_STR_LENGTH 8 // -65534: six characters plus a two NULLs
+#define INT32_MAX_STR_LENGTH 16
+#define NULL_CHAR            '\0'
+#define CR_CHAR              '\r'
+#define LF_CHAR              '\n'
 
 // global variables
 char mReceiveBuffer[CONSOLE_COMMAND_MAX_LENGTH];
@@ -43,7 +48,9 @@ static uint32_t ConsoleCommandMatch(const char* name, const char *buffer)
 
 	while ( ( 1u == result ) &&
 		( i < CONSOLE_COMMAND_MAX_COMMAND_LENGTH )  &&
-		( buffer[i] != PARAMETER_SEPARATER ) &&  ( buffer[i] != '\n' ) &&  ( buffer[i] != (char) NULL )
+		( buffer[i] != PARAMETER_SEPARATER ) &&
+		( buffer[i] != LF_CHAR ) &&( buffer[i] != CR_CHAR ) &&
+		( buffer[i] != (char) NULL_CHAR )
 		)
 	{
 		if ( buffer[i] != name[i] )
@@ -73,7 +80,7 @@ static uint32_t ConsoleResetBuffer(char receiveBuffer[], const uint32_t filledLe
 	}
 	for ( /* nothing */ ; i < CONSOLE_COMMAND_MAX_LENGTH ; i++)
 	{
-		receiveBuffer[i] = (char) NULL;
+		receiveBuffer[i] =  NULL_CHAR;
 	}
 	return (filledLength - usedSoFar);
 }
@@ -85,7 +92,8 @@ static int32_t ConsoleCommandEndline(const char receiveBuffer[], const  uint32_t
 	uint32_t i = 0;
 	int32_t result = NOT_FOUND; // if no endline is found, then return -1 (NOT_FOUND)
 
-	while ( ( '\n' != receiveBuffer[i] ) && ( i < filledLength ) )
+	while ( ( CR_CHAR != receiveBuffer[i])  && (LF_CHAR != receiveBuffer[i])
+			&& ( i < filledLength ) )
 	{
 		i++;
 	}
@@ -110,7 +118,7 @@ void ConsoleInit(void)
 
 	for ( i = 0u ; i < CONSOLE_COMMAND_MAX_LENGTH ; i++)
 	{
-		mReceiveBuffer[i] = (char) NULL;
+		mReceiveBuffer[i] = NULL_CHAR;
 	}
 
 }
@@ -127,9 +135,6 @@ void ConsoleProcess(void)
 	int32_t  found;
 	eCommandResult_T result;
 
-	commandTable = ConsoleCommandsGetTable();
-
-
 	ConsoleIoReceive((uint8_t*)&(mReceiveBuffer[mReceivedSoFar]), ( CONSOLE_COMMAND_MAX_LENGTH - mReceivedSoFar ), &received);
 	if ( received > 0u )
 	{
@@ -137,6 +142,7 @@ void ConsoleProcess(void)
 		cmdEndline = ConsoleCommandEndline(mReceiveBuffer, mReceivedSoFar);
 		if ( cmdEndline >= 0 )  // have complete string, find command
 		{
+			commandTable = ConsoleCommandsGetTable();
 			cmdIndex = 0u;
 			found = NOT_FOUND;
 			while ( ( NULL != commandTable[cmdIndex].name ) && ( NOT_FOUND == found ) )
@@ -164,9 +170,11 @@ void ConsoleProcess(void)
 			}
 			if ( ( cmdEndline != 0 ) && ( NOT_FOUND == found ) )
 			{
-				ConsoleIoSendString("Command not found.");
-				ConsoleIoSendString(STR_ENDLINE);
-
+				if (mReceivedSoFar > 2) /// shorter than that, it is probably nothing
+				{
+					ConsoleIoSendString("Command not found.");
+					ConsoleIoSendString(STR_ENDLINE);
+				}
 			}
 			mReceivedSoFar = ConsoleResetBuffer(mReceiveBuffer, mReceivedSoFar, cmdEndline);
 			ConsoleIoSendString(CONSOLE_PROMPT);
@@ -218,7 +226,8 @@ eCommandResult_T ConsoleReceiveParamInt16(const char * buffer, const uint8_t par
 
 	i = 0;
 	charVal = buffer[startIndex + i];
-	while ( ( '\n' != charVal ) && ( PARAMETER_SEPARATER != charVal )
+	while ( ( LF_CHAR != charVal ) && ( CR_CHAR != charVal )
+			&& ( PARAMETER_SEPARATER != charVal )
 		&& ( i < INT16_MAX_STR_LENGTH ) )
 	{
 		str[i] = charVal;					// copy the relevant part
@@ -231,7 +240,7 @@ eCommandResult_T ConsoleReceiveParamInt16(const char * buffer, const uint8_t par
 	}
 	if ( COMMAND_SUCCESS == result )
 	{
-		str[i] = (char) NULL;
+		str[i] = NULL_CHAR;
 		*parameterInt = atoi(str);
 	}
 	return result;
@@ -293,25 +302,95 @@ eCommandResult_T ConsoleSendParamHexUint16(uint16_t parameterUint16)
 			result = ConsoleUtilsIntToHexChar(tmpUint8, &(out[i]));
 		}
 	}
-	out[i] = (char) NULL;
+	out[i] = NULL_CHAR;
 	ConsoleIoSendString(out);
 
 	return COMMAND_SUCCESS;
 }
+
+eCommandResult_T ConsoleSendParamHexUint8(uint8_t parameterUint8)
+{
+	uint32_t i;
+	char out[2u + 1u];  // U8 must be less than 4 hex digits: 0xFFFF, end buffer with a NULL
+	eCommandResult_T result = COMMAND_SUCCESS;
+
+	i = 0u;
+	result = ConsoleUtilsIntToHexChar( (parameterUint8 >> 4u) & 0xF, &(out[i]));
+	i++;
+	if ( COMMAND_SUCCESS == result )
+	{
+		result = ConsoleUtilsIntToHexChar( parameterUint8 & 0xF, &(out[i]));
+		i++;
+	}
+	out[i] = NULL_CHAR;
+	ConsoleIoSendString(out);
+
+	return COMMAND_SUCCESS;
+}
+
+// The C library itoa is sometimes a complicated function and the library costs aren't worth it
+// so this is implements the parts of the function needed for console.
+static void __itoa(int in, char* outBuffer, int radix)
+{
+	bool isNegative = false;
+	int tmpIn;
+	int stringLen = 1u; // it will be at least as long as the NULL character
+
+	if (in < 0) {
+		isNegative = true;
+		in = -in;
+		stringLen++;
+	}
+
+	tmpIn = in;
+	while ((int)tmpIn/radix != 0) {
+		tmpIn = (int)tmpIn/radix;
+		stringLen++;
+	}
+    
+    // Now fill it in backwards, starting with the NULL at the end
+    *(outBuffer + stringLen) = NULL_CHAR;
+    stringLen--;
+
+	tmpIn = in;
+	do {
+		*(outBuffer+stringLen) = (tmpIn%radix)+'0';
+		tmpIn = (int) tmpIn / radix;
+	} while(stringLen--);
+
+	if (isNegative) {
+		*(outBuffer) = '-';
+	}
+}
+
 
 // ConsoleSendParamInt16
 // Send a parameter of type int16 using the (unsafe) C library function
-// itoa to translate from integer to string.
+// __itoa to translate from integer to string.
 eCommandResult_T ConsoleSendParamInt16(int16_t parameterInt)
 {
 	char out[INT16_MAX_STR_LENGTH];
+//	memset(out, 0, INT16_MAX_STR_LENGTH);
 
-	itoa (parameterInt, out, 10);
+	__itoa (parameterInt, out, 10);
 	ConsoleIoSendString(out);
 
 	return COMMAND_SUCCESS;
 }
 
+// ConsoleSendParamInt32
+// Send a parameter of type int16 using the (unsafe) C library function
+// __itoa to translate from integer to string.
+eCommandResult_T ConsoleSendParamInt32(int32_t parameterInt)
+{
+	char out[INT32_MAX_STR_LENGTH];
+	memset(out, 0, sizeof(out));
+
+	__itoa (parameterInt, out, 10);
+	ConsoleIoSendString(out);
+
+	return COMMAND_SUCCESS;
+}
 // ConsoleUtilHexCharToInt
 // Converts a single hex character (0-9,A-F) to an integer (0-15)
 static eCommandResult_T ConsoleUtilHexCharToInt(char charVal, uint8_t* pInt)
@@ -330,7 +409,8 @@ static eCommandResult_T ConsoleUtilHexCharToInt(char charVal, uint8_t* pInt)
     {
         *pInt = 10u + charVal - 'a';
     }
-	else if ( ( '\n' == charVal ) || ( PARAMETER_SEPARATER == charVal ) )
+	else if ( ( LF_CHAR != charVal ) || ( CR_CHAR != charVal )
+			|| ( PARAMETER_SEPARATER == charVal ) )
 	{
 		result = COMMAND_PARAMETER_END;
 
