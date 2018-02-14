@@ -31,7 +31,7 @@ typedef struct sConsoleCommandStruct
 #endif // CONSOLE_COMMAND_MAX_HELP_LENGTH 
 } sConsoleCommandTable_T;
 
-#define CONSOLE_COMMAND_TABLE_END {"",NULL, HELP("")}
+#define CONSOLE_COMMAND_TABLE_END {NULL, NULL, HELP("")}
 
 const sConsoleCommandTable_T* ConsoleCommandsGetTable(void);
 
