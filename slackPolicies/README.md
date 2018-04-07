@@ -1,4 +1,4 @@
-# Triangle Devs Slack Channel Policies
+# Embedded Podcast Slack Channel Policies
 
 Documentation, Info, and Code of Conduct for the Embedded Podcast Slack Channel.
 
