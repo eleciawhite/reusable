@@ -6,7 +6,7 @@ Inspired by the [TriangleDevOps Policies Repo](https://github.com/TriangleDevOps
 
 ## Admins
 
-These people are labeled as "Admins" on this slack. They are a combination of organizers and influencers in the NC Triangle area as well as individuals that help us enforce or [Code of Conduct][conduct]
+These people are labeled as "Admins" on this slack. They are individuals that help us enforce our [Code of Conduct][conduct]
 
 * [Elecia White](https://embeddedpodcast.slack.com/messages/@elecia/)
 * [Chris White](https://embeddedpodcast.slack.com/messages/@tstoneymonster/)
@@ -17,7 +17,7 @@ These people are labeled as "Admins" on this slack. They are a combination of or
 
 * [Code of Conduct][conduct]
 * [Guidelines for Admins][conduct-organizers]
-* [Individual Channel Policies](https://github.com/TriangleDevsSlack/policies/blob/master/channel-policies.md)
+* [Individual Channel Policies][channel-policies]
 
 ## Default Channels
 
