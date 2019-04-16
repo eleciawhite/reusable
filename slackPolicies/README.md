@@ -42,3 +42,4 @@ All changes should be made by creating a new branch, making the desired changes,
 
 [conduct]: code-of-conduct.md
 [conduct-organizers]: conduct-organizers.md
+[channel-policies]: channel-policies.md
