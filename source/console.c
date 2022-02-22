@@ -177,7 +177,9 @@ void ConsoleProcess(void)
 					ConsoleIoSendString(STR_ENDLINE);
 				}
 			}
-			mReceivedSoFar = ConsoleResetBuffer(mReceiveBuffer, mReceivedSoFar, cmdEndline);
+			//reset the buffer by moving over any leftovers and nulling the rest
+			// clear up to and including the found end line character
+			mReceivedSoFar = ConsoleResetBuffer(mReceiveBuffer, mReceivedSoFar, cmdEndline + 1);
 			ConsoleIoSendString(CONSOLE_PROMPT);
 		}
 	}
