@@ -70,6 +70,7 @@ static uint32_t ConsoleCommandMatch(const char* name, const char *buffer)
 // the rest.
 static uint32_t ConsoleResetBuffer(char receiveBuffer[], const uint32_t filledLength, uint32_t usedSoFar)
 {
+	uint32_t remaining = (filledLength - usedSoFar);
 	uint32_t i = 0;
 
 	while (usedSoFar < filledLength)
@@ -82,7 +83,7 @@ static uint32_t ConsoleResetBuffer(char receiveBuffer[], const uint32_t filledLe
 	{
 		receiveBuffer[i] =  NULL_CHAR;
 	}
-	return (filledLength - usedSoFar);
+	return remaining;
 }
 
 // ConsoleCommandEndline
