@@ -328,9 +328,12 @@ eCommandResult_T ConsoleSendParamHexUint8(uint8_t parameterUint8)
 	return COMMAND_SUCCESS;
 }
 
+
+#if CONSOLE_USE_BUILTIN_ITOA
+#define itoa smallItoa
 // The C library itoa is sometimes a complicated function and the library costs aren't worth it
 // so this is implements the parts of the function needed for console.
-static void __itoa(int in, char* outBuffer, int radix)
+static void smallItoa(int in, char* outBuffer, int radix)
 {
 	bool isNegative = false;
 	int tmpIn;
@@ -362,17 +365,17 @@ static void __itoa(int in, char* outBuffer, int radix)
 		*(outBuffer) = '-';
 	}
 }
-
+#endif
 
 // ConsoleSendParamInt16
 // Send a parameter of type int16 using the (unsafe) C library function
-// __itoa to translate from integer to string.
+// itoa to translate from integer to string.
 eCommandResult_T ConsoleSendParamInt16(int16_t parameterInt)
 {
 	char out[INT16_MAX_STR_LENGTH];
 //	memset(out, 0, INT16_MAX_STR_LENGTH);
 
-	__itoa (parameterInt, out, 10);
+	itoa (parameterInt, out, 10);
 	ConsoleIoSendString(out);
 
 	return COMMAND_SUCCESS;
@@ -380,13 +383,13 @@ eCommandResult_T ConsoleSendParamInt16(int16_t parameterInt)
 
 // ConsoleSendParamInt32
 // Send a parameter of type int16 using the (unsafe) C library function
-// __itoa to translate from integer to string.
+// itoa to translate from integer to string.
 eCommandResult_T ConsoleSendParamInt32(int32_t parameterInt)
 {
 	char out[INT32_MAX_STR_LENGTH];
 	memset(out, 0, sizeof(out));
 
-	__itoa (parameterInt, out, 10);
+	itoa (parameterInt, out, 10);
 	ConsoleIoSendString(out);
 
 	return COMMAND_SUCCESS;
