@@ -443,3 +443,24 @@ static eCommandResult_T ConsoleUtilsIntToHexChar(uint8_t intVal, char* pChar)
 
     return result;
 }
+// ConsoleSendString
+// Send a null terminated string to the console.
+// This is a light wrapper around ConsoleIoSendString. It uses the same
+// API convention as the rest of the top level ConsoleSendX APIs 
+// while exposing this functionality at the top level so 
+// that the lower level consoleIo module doesn't need to be
+// a dependency.
+eCommandResult_T ConsoleSendString(const char *buffer)
+{
+	ConsoleIoSendString(buffer);
+	return COMMAND_SUCCESS;
+}
+
+// ConsoleSendLine
+// Send a null terminated string to the console followed by a line ending.
+eCommandResult_T ConsoleSendLine(const char *buffer)
+{
+	ConsoleIoSendString(buffer);
+	ConsoleIoSendString(STR_ENDLINE);
+	return COMMAND_SUCCESS;
+}
