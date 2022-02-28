@@ -3,7 +3,13 @@
 
 #include "consoleIo.h"
 #include <stdio.h>
+
+//use the windows conio.h for kbhit, or a POSIX reproduction
+#ifdef _WIN32
 #include <conio.h>
+#else
+#include "conioCompat.h"
+#endif
 
 static int getch_noblock() {
     if (_kbhit())
@@ -21,7 +27,7 @@ eConsoleError ConsoleIoReceive(uint8_t *buffer, const uint32_t bufferLength, uin
 	uint32_t i = 0;
 	char ch;
 	
-	ch = getchar();
+	ch = getch_noblock();
 	while ( ( EOF != ch ) && ( i < bufferLength ) )
 	{
 		buffer[i] = (uint8_t) ch;
