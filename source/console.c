@@ -21,6 +21,7 @@
 // global variables
 char mReceiveBuffer[CONSOLE_COMMAND_MAX_LENGTH];
 uint32_t mReceivedSoFar;
+bool mReceiveBufferNeedsChecking = false;
 
 // local functions
 static int32_t ConsoleCommandEndline(const char receiveBuffer[], const  uint32_t filledLength);
@@ -70,6 +71,7 @@ static uint32_t ConsoleCommandMatch(const char* name, const char *buffer)
 // the rest.
 static uint32_t ConsoleResetBuffer(char receiveBuffer[], const uint32_t filledLength, uint32_t usedSoFar)
 {
+	uint32_t remaining = (filledLength - usedSoFar);
 	uint32_t i = 0;
 
 	while (usedSoFar < filledLength)
@@ -82,7 +84,7 @@ static uint32_t ConsoleResetBuffer(char receiveBuffer[], const uint32_t filledLe
 	{
 		receiveBuffer[i] =  NULL_CHAR;
 	}
-	return (filledLength - usedSoFar);
+	return remaining;
 }
 
 // ConsoleCommandEndline
@@ -136,8 +138,9 @@ void ConsoleProcess(void)
 	eCommandResult_T result;
 
 	ConsoleIoReceive((uint8_t*)&(mReceiveBuffer[mReceivedSoFar]), ( CONSOLE_COMMAND_MAX_LENGTH - mReceivedSoFar ), &received);
-	if ( received > 0u )
+	if ( received > 0u || mReceiveBufferNeedsChecking)
 	{
+		mReceiveBufferNeedsChecking = false;
 		mReceivedSoFar += received;
 		cmdEndline = ConsoleCommandEndline(mReceiveBuffer, mReceivedSoFar);
 		if ( cmdEndline >= 0 )  // have complete string, find command
@@ -176,7 +179,10 @@ void ConsoleProcess(void)
 					ConsoleIoSendString(STR_ENDLINE);
 				}
 			}
-			mReceivedSoFar = ConsoleResetBuffer(mReceiveBuffer, mReceivedSoFar, cmdEndline);
+			//reset the buffer by moving over any leftovers and nulling the rest
+			// clear up to and including the found end line character
+			mReceivedSoFar = ConsoleResetBuffer(mReceiveBuffer, mReceivedSoFar, cmdEndline + 1);
+			mReceiveBufferNeedsChecking = mReceivedSoFar > 0 ? true : false;
 			ConsoleIoSendString(CONSOLE_PROMPT);
 		}
 	}

@@ -18,7 +18,7 @@ eConsoleError ConsoleIoInit(void)
 }
 eConsoleError ConsoleIoReceive(uint8_t *buffer, const uint32_t bufferLength, uint32_t *readLength)
 {
-	uint8_t i = 0;
+	uint32_t i = 0;
 	char ch;
 	
 	ch = getchar();
