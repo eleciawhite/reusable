@@ -38,13 +38,6 @@ eConsoleError ConsoleIoReceive(uint8_t *buffer, const uint32_t bufferLength, uin
 	return CONSOLE_SUCCESS;
 }
 
-eConsoleError ConsoleIoSend(const uint8_t *buffer, const uint32_t bufferLength, uint32_t *sentLength)
-{
-	printf("%s",(char*)buffer);
-	*sentLength = bufferLength;
-	return CONSOLE_SUCCESS;
-}
-
 eConsoleError ConsoleIoSendString(const char *buffer)
 {
 	printf("%s", buffer);
